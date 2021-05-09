@@ -147,7 +147,7 @@ dependencies = [
 
 [[package]]
 name = "qpasswd"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "base64",
  "rand 0.8.3",
