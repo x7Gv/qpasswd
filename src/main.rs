@@ -87,7 +87,8 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
     println!("--->>> {}", String::from_utf8_lossy(&res));
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut opt = Opt::from_args();
 
@@ -99,7 +100,7 @@ fn main() {
 
     if !(decrypt ^ encrypt) {
         println!("Please only use one of the possible flags. // !assert(decrypt ^ encrypt)");
-        return;
+        return Ok(())
     }
    
     if encrypt {
@@ -113,4 +114,6 @@ fn main() {
     if dbg {
         println!("{:?}", &mut opt);
     }
+
+    Ok(())
 }
