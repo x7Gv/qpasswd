@@ -1,0 +1,13 @@
+[package]
+name = "qpasswd"
+version = "0.2.0"
+authors = ["osk <tgv.alpha@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.3"
+rust-crypto = "0.2.36"
+base64 = "0.13.0"
+structopt = "0.3.20"
