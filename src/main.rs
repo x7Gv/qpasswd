@@ -57,7 +57,7 @@ fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
 
     let res = crypt::encrypt(_data.as_bytes(), &key, &mut iv).unwrap();
 
-    println!("--->>> {}", base64::encode(&res));
+    println!(">>>| {}", base64::encode(&res));
 }
 
 fn run_decrypt(data: &str, pass: &str, dbg: bool) {
@@ -84,7 +84,7 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
 
     let res = crypt::decrypt(&base64::decode(&data).unwrap(), &key, &mut iv).unwrap();
 
-    println!("--->>> {}", String::from_utf8_lossy(&res));
+    println!(">>>| {}", String::from_utf8_lossy(&res));
 }
 
 #[tokio::main]
@@ -105,10 +105,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
    
     if encrypt {
         println!("Attempting to encrypt :: This may take a while.");
-        run_encrypt(source, pass, dbg);
+
+        tokio::task::block_in_place(move || {
+            run_encrypt(source, pass, dbg);
+        });
+
     } else if decrypt {
         println!("Attempting to decrypt :: This may take a while.");
-        run_decrypt(source, &pass, dbg);
+
+        tokio::task::block_in_place(move || {
+            run_decrypt(source, &pass, dbg);
+        });
     }
 
     if dbg {
