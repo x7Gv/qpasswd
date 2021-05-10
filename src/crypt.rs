@@ -106,6 +106,9 @@ mod tests {
         assert!(msg.as_bytes() == &dec_data[..]);
     }
 
+    /*
+     *  TOO RESOURCE INTENSIVE
+     *
     #[test]
     fn key_derivation() {
 
@@ -120,4 +123,5 @@ mod tests {
         assert!(key0 == key1);
         assert!(key0 != key2);
     }
+    */
 }
