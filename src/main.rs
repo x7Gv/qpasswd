@@ -38,9 +38,8 @@ fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
     /*
      * Derive the symmetric encryption key from scrypt [RFC 7914]
      */
-    let scrypt_p = crypto::scrypt::ScryptParams::new(8, 256, 4);
     let mut key = [0u8; 32];
-    crypto::scrypt::scrypt(pass.as_bytes(), b"salt", &scrypt_p, &mut key);
+    crypt::derive_key(pass, &mut key);
 
     qpasswd::random_art(&key);
 
@@ -67,9 +66,8 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
     /*
      * Derive the symmetric encryption key from scrypt [RFC 7914]
      */
-    let scrypt_p = crypto::scrypt::ScryptParams::new(8, 256, 4);
     let mut key = [0u8; 32];
-    crypto::scrypt::scrypt(pass.as_bytes(), b"salt", &scrypt_p, &mut key);
+    crypt::derive_key(pass, &mut key);
 
     qpasswd::random_art(&key);
 
