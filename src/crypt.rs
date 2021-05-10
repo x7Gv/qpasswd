@@ -79,3 +79,25 @@ pub fn decrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, crypto
 
     Ok(final_res)
 }
+
+mod tests {
+
+    #[test]
+    fn enc_dec() {
+
+        use rand::RngCore;
+        use rand_core::OsRng;
+
+        let msg = "test";
+        let mut key: [u8; 32] = [0; 32];
+        let mut iv: [u8; 16] = [0; 16];
+
+        OsRng.fill_bytes(&mut iv);
+        OsRng.fill_bytes(&mut key);
+
+        let enc_data = super::encrypt(msg.as_bytes(), &key, &mut iv).unwrap();
+        let dec_data = super::decrypt(&enc_data[..], &key, &mut iv).unwrap();
+
+        assert!(msg.as_bytes() == &dec_data[..]);
+    }
+}
