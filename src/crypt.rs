@@ -6,6 +6,11 @@ use crypto::sha2;
 
 use crypto::buffer::*;
 
+pub fn derive_key(pass: &str, key: &mut [u8]) {
+    let scrypt_p = crypto::scrypt::ScryptParams::new(8, 256, 4);
+    crypto::scrypt::scrypt(pass.as_bytes(), b"salt", &scrypt_p, key);
+}
+
 pub fn encrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
 
     let mut hasher = sha2::Sha256::new();
@@ -99,5 +104,20 @@ mod tests {
         let dec_data = super::decrypt(&enc_data[..], &key, &mut iv).unwrap();
 
         assert!(msg.as_bytes() == &dec_data[..]);
+    }
+
+    #[test]
+    fn key_derivation() {
+
+        let mut key0 = [0u8; 32];
+        let mut key1 = [0u8; 32];
+        let mut key2 = [0u8; 32];
+
+        super::derive_key("jea", &mut key0);
+        super::derive_key("jea", &mut key1);
+        super::derive_key("jou", &mut key2);
+
+        assert!(key0 == key1);
+        assert!(key0 != key2);
     }
 }
