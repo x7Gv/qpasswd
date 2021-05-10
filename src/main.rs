@@ -25,11 +25,11 @@ struct Opt {
     debug: bool,
 
     /// Insert source str
-    #[structopt(name = "SOURCE", long, short, required_if("decrypt", "encrypt"))]
+    #[structopt(name = "source", long, short, required_if("decrypt", "encrypt"))]
     source: String,
 
     /// Insert pass
-    #[structopt(name = "PASS", long, short, required_if("decrypt", "encrypt"))]
+    #[structopt(name = "pass", long, short, required_if("decrypt", "encrypt"))]
     pass: String,
 }
 
