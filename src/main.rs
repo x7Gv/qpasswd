@@ -42,6 +42,8 @@ fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
     let mut key = [0u8; 32];
     crypto::scrypt::scrypt(pass.as_bytes(), b"salt", &scrypt_p, &mut key);
 
+    qpasswd::random_art(&key);
+
     if dbg {
         println!("pass -> {:?}", &pass);
         println!("key -> {:?}", key);
@@ -68,6 +70,8 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
     let scrypt_p = crypto::scrypt::ScryptParams::new(8, 256, 4);
     let mut key = [0u8; 32];
     crypto::scrypt::scrypt(pass.as_bytes(), b"salt", &scrypt_p, &mut key);
+
+    qpasswd::random_art(&key);
 
     if dbg {
         println!("pass -> {:?}", &pass);

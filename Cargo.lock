@@ -33,6 +33,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
+name = "bishop"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2a8a33161b7ac9b4dcad43fffe283788a1c5b28da0e40c715589570453920f0"
+dependencies = [
+ "custom_error",
+ "unicode-width",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -58,6 +68,12 @@ dependencies = [
  "unicode-width",
  "vec_map",
 ]
+
+[[package]]
+name = "custom_error"
+version = "1.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f8a51dd197fa6ba5b4dc98a990a43cc13693c23eb0089ebb0fcc1f04152bca6"
 
 [[package]]
 name = "fuchsia-cprng"
@@ -172,6 +188,7 @@ name = "qpasswd"
 version = "0.3.0"
 dependencies = [
  "base64",
+ "bishop",
  "rand 0.8.3",
  "rust-crypto",
  "structopt",
