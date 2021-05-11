@@ -3,6 +3,7 @@ pub mod crypt;
 extern crate base64;
 
 use std::convert::TryInto;
+use std::time::Instant;
 
 use structopt::StructOpt;
 
@@ -58,7 +59,9 @@ fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
 
     let res = crypt::encrypt(_data.as_bytes(), &key, &mut iv).unwrap();
 
+    println!("+------------------------------+");
     println!(">>>| {}", base64::encode(&res));
+    println!("+------------------------------+");
 }
 
 fn run_decrypt(data: &str, pass: &str, dbg: bool) {
@@ -86,7 +89,9 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
 
     let res = crypt::decrypt(&base64::decode(&data).unwrap(), &key, &mut iv).unwrap();
 
+    println!("+------------------------------+");
     println!(">>>| {}", String::from_utf8_lossy(&res));
+    println!("+------------------------------+");
 }
 
 #[tokio::main]
@@ -109,14 +114,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Attempting to encrypt :: This may take a while.");
 
         tokio::task::block_in_place(move || {
+
+            let now = Instant::now();
             run_encrypt(source, pass, dbg);
+            let elapsed = now.elapsed();
+
+            println!("elapsed : {:?}", elapsed);
         });
 
     } else if decrypt {
         println!("Attempting to decrypt :: This may take a while.");
 
         tokio::task::block_in_place(move || {
+
+            let now = Instant::now();
             run_decrypt(source, &pass, dbg);
+            let elapsed = now.elapsed();
+
+            println!("elapsed : {:?}", elapsed);
         });
     }
 

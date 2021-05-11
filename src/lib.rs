@@ -10,5 +10,5 @@ pub fn random_art(data: &[u8]) {
 
     let field = BishopArt::new().chain(data).result();
 
-    println!("{}", field.draw_with_opts(&opts));
+    println!("\n{}", field.draw_with_opts(&opts));
 }
