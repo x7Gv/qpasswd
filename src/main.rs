@@ -1,10 +1,12 @@
 pub mod crypt;
+pub mod gui;
 
 extern crate base64;
 
 use std::convert::TryInto;
 use std::time::Instant;
 
+use iced::{Sandbox, Settings};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -24,6 +26,11 @@ struct Opt {
     // long flags (--debug)
     #[structopt(long)]
     debug: bool,
+
+    /// Activate gui
+    // long flags (--gui)
+    #[structopt(long)]
+    gui_enabled: bool,
 
     /// Insert source str
     #[structopt(name = "source", long, short, required_if("decrypt", "encrypt"))]
@@ -102,12 +109,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let decrypt: bool = opt.decrypt;
     let encrypt: bool = opt.encrypt;
     let dbg: bool = opt.debug;
+    let gui_enabled: bool = opt.gui_enabled;
     let source: &str = &opt.source;
     let pass: &str = &opt.pass;
 
     if !(decrypt ^ encrypt) {
         println!("Please only use one of the possible flags. // !assert(decrypt ^ encrypt)");
         return Ok(())
+    }
+
+    if gui_enabled {
+        gui::Application::run(Settings::default());
     }
    
     if encrypt {
