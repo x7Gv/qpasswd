@@ -1,7 +1,6 @@
 use bishop::*;
 
 pub fn random_art(data: &[u8]) {
-
     let opts = DrawingOptions {
         top_text: "scrypt".to_string(),
         bottom_text: "derived key".to_string(),

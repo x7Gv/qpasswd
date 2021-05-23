@@ -1,8 +1,7 @@
-
-use crypto::{aes, digest::Digest, blockmodes::PkcsPadding};
-use crypto::symmetriccipher;
 use crypto::buffer;
 use crypto::sha2;
+use crypto::symmetriccipher;
+use crypto::{aes, blockmodes::PkcsPadding, digest::Digest};
 
 use crypto::buffer::*;
 
@@ -11,8 +10,11 @@ pub fn derive_key(pass: &str, key: &mut [u8]) {
     crypto::scrypt::scrypt(pass.as_bytes(), b"salt", &scrypt_p, key);
 }
 
-pub fn encrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
-
+pub fn encrypt(
+    data: &[u8],
+    key: &[u8],
+    iv: &mut [u8],
+) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
     let mut hasher = sha2::Sha256::new();
 
     let mut hashed_key = [0u8; 32];
@@ -22,12 +24,7 @@ pub fn encrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, symmet
 
     // println!("ec - {} - {} - {}", data.len(), key.len(), hashed_key.len());
 
-    let mut encryptor = aes::cbc_encryptor(
-        aes::KeySize::KeySize256,
-        &hashed_key,
-        iv,
-        PkcsPadding
-    );
+    let mut encryptor = aes::cbc_encryptor(aes::KeySize::KeySize256, &hashed_key, iv, PkcsPadding);
 
     let mut final_res = Vec::<u8>::new();
     let mut buf = [0; 4096];
@@ -37,19 +34,28 @@ pub fn encrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, symmet
     loop {
         let res = encryptor.encrypt(&mut read_buf, &mut write_buf, true)?;
 
-        final_res.extend(write_buf.take_read_buffer().take_remaining().iter().map(|&i| i));
+        final_res.extend(
+            write_buf
+                .take_read_buffer()
+                .take_remaining()
+                .iter()
+                .map(|&i| i),
+        );
 
         match res {
             BufferResult::BufferUnderflow => break,
-            BufferResult::BufferOverflow => {  }
+            BufferResult::BufferOverflow => {}
         }
     }
 
     Ok(final_res)
 }
 
-pub fn decrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, crypto::symmetriccipher::SymmetricCipherError> {
-
+pub fn decrypt(
+    data: &[u8],
+    key: &[u8],
+    iv: &mut [u8],
+) -> Result<Vec<u8>, crypto::symmetriccipher::SymmetricCipherError> {
     let mut hasher = sha2::Sha256::new();
     let mut hashed_key = [0u8; 32];
 
@@ -58,12 +64,7 @@ pub fn decrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, crypto
 
     // println!("dc - {} - {} - {}", data.len(), key.len(), hashed_key.len());
 
-    let mut decryptor = aes::cbc_decryptor(
-        aes::KeySize::KeySize256,
-        &hashed_key,
-        iv,
-        PkcsPadding
-    );
+    let mut decryptor = aes::cbc_decryptor(aes::KeySize::KeySize256, &hashed_key, iv, PkcsPadding);
 
     let mut final_res = Vec::<u8>::new();
 
@@ -75,10 +76,16 @@ pub fn decrypt(data: &[u8], key: &[u8], iv: &mut [u8]) -> Result<Vec<u8>, crypto
     loop {
         let res = decryptor.decrypt(&mut read_buf, &mut write_buf, true)?;
 
-        final_res.extend(write_buf.take_read_buffer().take_remaining().iter().map(|&i| i));
+        final_res.extend(
+            write_buf
+                .take_read_buffer()
+                .take_remaining()
+                .iter()
+                .map(|&i| i),
+        );
         match res {
             BufferResult::BufferUnderflow => break,
-            BufferResult::BufferOverflow => { }
+            BufferResult::BufferOverflow => {}
         }
     }
 
@@ -89,7 +96,6 @@ mod tests {
 
     #[test]
     fn enc_dec() {
-
         use rand::RngCore;
         use rand_core::OsRng;
 

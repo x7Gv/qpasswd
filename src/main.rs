@@ -42,7 +42,6 @@ struct Opt {
 }
 
 fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
-
     /*
      * Derive the symmetric encryption key from scrypt [RFC 7914]
      */
@@ -72,7 +71,6 @@ fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
 }
 
 fn run_decrypt(data: &str, pass: &str, dbg: bool) {
-
     /*
      * Derive the symmetric encryption key from scrypt [RFC 7914]
      */
@@ -91,7 +89,7 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
     let mut iv: [u8; 16] = key[0..16].try_into().unwrap();
 
     if dbg {
-     println!("{:?}", iv);
+        println!("{:?}", iv);
     }
 
     let res = crypt::decrypt(&base64::decode(&data).unwrap(), &key, &mut iv).unwrap();
@@ -103,7 +101,6 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     let mut opt = Opt::from_args();
 
     let decrypt: bool = opt.decrypt;
@@ -115,30 +112,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if !(decrypt ^ encrypt) {
         println!("Please only use one of the possible flags. // !assert(decrypt ^ encrypt)");
-        return Ok(())
+        return Ok(());
     }
 
     if gui_enabled {
         gui::Application::run(Settings::default());
     }
-   
+
     if encrypt {
         println!("Attempting to encrypt :: This may take a while.");
 
         tokio::task::block_in_place(move || {
-
             let now = Instant::now();
             run_encrypt(source, pass, dbg);
             let elapsed = now.elapsed();
 
             println!("elapsed : {:?}", elapsed);
         });
-
     } else if decrypt {
         println!("Attempting to decrypt :: This may take a while.");
 
         tokio::task::block_in_place(move || {
-
             let now = Instant::now();
             run_decrypt(source, &pass, dbg);
             let elapsed = now.elapsed();
