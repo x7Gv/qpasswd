@@ -196,6 +196,7 @@ dependencies = [
  "anyhow",
  "base64",
  "bishop",
+ "clap",
  "rand 0.8.3",
  "rand_core 0.6.2",
  "rust-crypto",
