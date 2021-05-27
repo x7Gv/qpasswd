@@ -13,17 +13,17 @@ pub enum CharsetType {
 
 #[derive(Debug, Default)]
 pub struct PasswdGenBuilder {
-    length: i16,
-    charsets: Vec<CharsetType>,
+    pub length: i16,
+    pub charsets: Vec<CharsetType>,
 }
 
 #[derive(Debug, Default)]
 pub struct PasswdGen {
-    length: i16,
-    charsets: Vec<CharsetType>,
+    pub length: i16,
+    pub charsets: Vec<CharsetType>,
 }
 
-fn charset(charset: &CharsetType) -> Vec<char> {
+pub fn charset(charset: &CharsetType) -> Vec<char> {
     match charset {
         CharsetType::Lowercase => {
             "abcdefghijklmnopqrstuvwxyz".chars().collect()

@@ -6,114 +6,7 @@ extern crate base64;
 use std::convert::TryInto;
 use std::time::Instant;
 
-use clap::{App, Arg, SubCommand, AppSettings};
-
-use structopt::StructOpt;
-
-#[derive(StructOpt)]
-struct QPasswd {
-    #[structopt(long)]
-    debug: bool,
-
-    #[structopt(subcommand)]
-    cmd: Command,
-}
-
-#[derive(StructOpt)]
-enum Command {
-    Gen {
-        #[structopt(long)]
-        length: i16,
-
-        #[structopt(long)]
-        lowercase: bool,
-
-        #[structopt(long)]
-        uppercase: bool,
-
-        #[structopt(long)]
-        symbols: bool,
-
-        #[structopt(long)]
-        numbers: bool,
-
-        #[structopt(long)]
-        special: bool,
-    },
-    Crypt {
-        /// Activate decrypt mode
-        // short and long flags (-d, --decrypt)
-        #[structopt(short, long)]
-        decrypt: bool,
-
-        /// Activate encrypt mode
-        // short and long flags (-e, --encrypt)
-        #[structopt(short, long)]
-        encrypt: bool,
-
-        /// Insert source str
-        #[structopt(name = "source", long, short)]
-        source: String,
-
-        /// Insert pass
-        #[structopt(name = "pass", long, short)]
-        pass: String,
-    }
-}
-
-/*
-#[derive(Debug, StructOpt)]
-#[structopt(name = "qpasswd")]
-struct Opt {
-    /// Activate decrypt mode
-    // short and long flags (-d, --decrypt)
-    #[structopt(short, long)]
-    decrypt: bool,
-
-    /// Activate encrypt mode
-    // short and long flags (-e, --encrypt)
-    #[structopt(short, long)]
-    encrypt: bool,
-
-    /// Activate gen mode
-    // short and long flags (-g, --gen)
-    #[structopt(short, long)]
-    gen: bool,
-
-    /// Toggle lowercase for gen
-    #[structopt(name = "lower", long, short)]
-    lower: bool,
-
-    /// Toggle uppercase for gen
-    #[structopt(name = "upper", long, short)]
-    upper: bool,
-
-    /// Toggle symbols for gen
-    #[structopt(name = "symbols", long, short)]
-    symbols: bool,
-
-    /// Toggle numbers for gen
-    #[structopt(name = "numbers", long, short)]
-    numbers: bool,
-
-    /// Toggle special for gen
-    #[structopt(name = "special", long, short)]
-    special: bool,
-
-    /// Activate debug mode
-    // long flags (--debug)
-    #[structopt(long)]
-    debug: bool,
-
-    /// Insert source str
-    #[structopt(name = "source", long, short)]
-    source: String,
-
-    /// Insert pass
-    #[structopt(name = "pass", long, short)]
-    pass: String,
-}
-*/
+use clap::{App, Arg, AppSettings};
 
 fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
 
@@ -179,12 +72,13 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let matches = App::new("qpasswd")
-        .about("jea")
         .version("0.5.0")
         .author("osk")
+        .setting(AppSettings::SubcommandRequiredElseHelp)
         .arg(
             Arg::with_name("debug")
                 .long("debug")
+                .help("Enable debug mode")
         )
         .subcommand(
             App::new("gen")
@@ -192,20 +86,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .arg(
                     Arg::with_name("lowercase")
                         .long("lowercase")
+                        .help("Enable lowercase charset")
                 )
                 .arg(
                     Arg::with_name("uppercase")
                         .long("uppercase")
+                        .help("Enable uppercase charset")
                 )
                 .arg(
                     Arg::with_name("symbols")
                         .long("symbols")
+                        .help("Enable symbols charset")
+                )
+                .arg(
+                    Arg::with_name("numbers")
+                        .long("numbers")
+                        .help("Enable number charset")
+                )
+                .arg(
+                    Arg::with_name("special")
+                        .long("special")
+                        .help("Enable special charset")
                 )
                 .arg(
                     Arg::with_name("length")
                         .short("l")
                         .takes_value(true)
                         .required(true)
+                        .help("The number of characters")
                 ),
         )
         .subcommand(
@@ -216,12 +124,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .short("e")
                         .conflicts_with("decrypt")
                         .required_unless("encrypt")
+                        .help("encrypt mode")
                 )
                 .arg(
                     Arg::with_name("decrypt")
                         .short("d")
                         .conflicts_with("encrypt")
                         .required_unless("decrypt")
+                        .help("decrypt mode")
                 )
                 .arg(
                     Arg::with_name("pass")
@@ -229,6 +139,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .long("pass")
                         .takes_value(true)
                         .required(true)
+                        .help("Passphrase to derive the key from.")
                 )
                 .arg(
                     Arg::with_name("source")
@@ -236,6 +147,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         .long("source")
                         .takes_value(true)
                         .required(true)
+                        .help("Source to crypt")
                 )
         )
         .get_matches();
@@ -267,6 +179,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         gen.add_charset(gen::CharsetType::Symbols);
                         configured = true;
                     }
+                    if args.is_present("numbers") {
+                        gen.add_charset(gen::CharsetType::Numbers);
+                    }
+                    if args.is_present("special") {
+                        gen.add_charset(gen::CharsetType::Special);
+                    }
 
                     let s: String;
                     if !configured {
@@ -275,9 +193,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             .add_charset(gen::CharsetType::Uppercase)
                             .add_charset(gen::CharsetType::Numbers);
 
+                        let mut n: usize = 0;
+                        for charset in &gen.charsets {
+                            n = n + gen::charset(charset).len();
+                        }
+
+                        println!("Charsets enabled: {:?}", gen.charsets);
+                        println!("Length: {}", gen.length);
+                        println!("Entropy: {:.1} bits", (n as f64).powi(gen.length.into()).log(2.0));
+
                         s = gen.build().generate().unwrap();
 
                     } else {
+
+                        let mut n: usize = 0;
+                        for charset in &gen.charsets {
+                            n = n + gen::charset(charset).len();
+                        }
+
+                        println!("Charsets enabled: {:?}", gen.charsets);
+                        println!("Length: {}", gen.length);
+                        println!("Entropy: {:.1} bits", (n as f64).powi(gen.length.into()).log(2.0));
+
                         s = gen.build().generate().unwrap();
                     }
 
@@ -334,89 +271,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         _ => unreachable!()
     }
-
-    // let mut opt = Opt::from_args();
-
-    /*
-    let decrypt: bool = opt.decrypt;
-    let encrypt: bool = opt.encrypt;
-    let dbg: bool = opt.debug;
-    let source: &str = &opt.source;
-    let pass: &str = &opt.pass;
-
-    let gen: bool = opt.gen;
-    let lower: bool = opt.lower;
-    let upper: bool = opt.upper;
-    let symbols: bool = opt.symbols;
-    let numbers: bool = opt.numbers;
-    let special: bool = opt.special;
-    */
-
-    /*
-    if gen {
-
-        let mut builder = gen::PasswdGen::builder();
-
-        if lower {
-            builder.add_charset(gen::CharsetType::Lowercase);
-        }
-        if upper {
-            builder.add_charset(gen::CharsetType::Uppercase);
-        }
-        if symbols {
-            builder.add_charset(gen::CharsetType::Symbols);
-        }
-        if numbers {
-            builder.add_charset(gen::CharsetType::Numbers);
-        }
-        if special {
-            builder.add_charset(gen::CharsetType::Special);
-        }
-
-        builder.set_length(16);
-        let s = builder.build().generate().unwrap();
-
-        println!("+------------------------------+");
-        println!(">>>| {}", s);
-        println!("+------------------------------+");
-
-        return Ok(())
-    }
-
-    if !(decrypt ^ encrypt) {
-        println!("Please only use one of the possible flags. // !assert(decrypt ^ encrypt)");
-        return Ok(())
-    }
-   
-    if encrypt {
-        println!("Attempting to encrypt :: This may take a while.");
-
-        tokio::task::block_in_place(move || {
-
-            let now = Instant::now();
-            run_encrypt(source, pass, dbg);
-            let elapsed = now.elapsed();
-
-            println!("elapsed : {:?}", elapsed);
-        });
-
-    } else if decrypt {
-        println!("Attempting to decrypt :: This may take a while.");
-
-        tokio::task::block_in_place(move || {
-
-            let now = Instant::now();
-            run_decrypt(source, &pass, dbg);
-            let elapsed = now.elapsed();
-
-            println!("elapsed : {:?}", elapsed);
-        });
-    }
-
-    if dbg {
-        println!("{:?}", &mut opt);
-    }
-    */
 
     Ok(())
 }
