@@ -5,9 +5,13 @@ extern crate base64;
 
 use std::convert::TryInto;
 use std::io::BufRead;
-use std::time::Instant;
+use std::thread;
+use std::time::{Duration, Instant};
 
 use clap::{App, Arg, AppSettings};
+
+use clipboard::ClipboardContext;
+use clipboard::ClipboardProvider;
 
 fn run_encrypt(_data: &str, pass: &str, dbg: bool) {
 
@@ -69,23 +73,28 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
     println!("+------------------------------+");
 }
 
-fn ask_for_copy() {
+fn ask_for_copy(s: &str) {
 
-    println!("copy y/n");
+    println!("Copy to clipboard (for 45 sec) ? y/n : ");
 
     loop {
         match std::io::stdin().lock().lines().next().unwrap().unwrap().to_string().as_str() {
             "y" => {
-                println!("yes");
+
+                println!("--- COPIED (for 45 sec) ---");
+
+                let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                ctx.set_contents(s.to_owned()).unwrap();
+                thread::sleep(Duration::from_secs(45));
+                ctx.set_contents("".to_owned()).unwrap();
+
                 break;
             },
             "n" => {
-                println!("no");
                 break;
             },
             _ => {
-                println!("none");
-                break;
+                continue;
             }
         }
     }
@@ -245,7 +254,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!(">>>| {}", s);
                     println!("+------------------------------+");
 
-                    ask_for_copy();
+                    ask_for_copy(&s);
 
                     return Ok(());
                 }
