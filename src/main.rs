@@ -4,6 +4,7 @@ pub mod gen;
 extern crate base64;
 
 use std::convert::TryInto;
+use std::io::BufRead;
 use std::time::Instant;
 
 use clap::{App, Arg, AppSettings};
@@ -66,6 +67,28 @@ fn run_decrypt(data: &str, pass: &str, dbg: bool) {
     println!("+------------------------------+");
     println!(">>>| {}", String::from_utf8_lossy(&res));
     println!("+------------------------------+");
+}
+
+fn ask_for_copy() {
+
+    println!("copy y/n");
+
+    loop {
+        match std::io::stdin().lock().lines().next().unwrap().unwrap().to_string().as_str() {
+            "y" => {
+                println!("yes");
+                break;
+            },
+            "n" => {
+                println!("no");
+                break;
+            },
+            _ => {
+                println!("none");
+                break;
+            }
+        }
+    }
 }
 
 #[tokio::main]
@@ -221,6 +244,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     println!("+------------------------------+");
                     println!(">>>| {}", s);
                     println!("+------------------------------+");
+
+                    ask_for_copy();
 
                     return Ok(());
                 }
