@@ -1,6 +1,11 @@
 # qpasswd
-A Symmetric key based password crypting tool.
+
+## Includes features:
+
+> A Symmetric key based password crypting tool.
  Using `AES-256-CBC` as an encryption standard and `scrypt` with 256bit keys as the key derivation for the CBC algorithm.
+
+> OS level random password generation tool with rich charset catalog
 
 ## Building
 This project requires Rusts Cargo build system for it to be built. 
